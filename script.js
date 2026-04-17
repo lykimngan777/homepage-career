@@ -2,100 +2,142 @@ document.addEventListener('DOMContentLoaded', () => {
     const quoteElement = document.getElementById('typewriter-quote');
     const quoteIconTop = document.querySelector('.quote-icon-top');
     const quoteIconBottom = document.querySelector('.quote-icon-bottom');
-    const authorElement = document.querySelector('.author');
-    const buttonWrapper = document.querySelector('.button-wrapper');
-    const ctaButton = document.getElementById('cta-button');
+    const authorElement = document.getElementById('author-text');
+    const scrollHint = document.getElementById('scroll-hint');
+    const floatingNav = document.getElementById('floating-nav');
+    const startNavBtn = document.getElementById('start-nav');
     const featuresSection = document.getElementById('features');
     const stepsSection = document.getElementById('steps');
     const stepCards = document.querySelectorAll('.step-card');
-    
-    // Preparation
+
+    // --- Global State ---
+    let typewriterFinished = false;
+
+    // --- Initial Lock ---
+    document.body.style.overflowY = 'hidden';
+
+    // --- Helper: Scroll Transition Logic ---
+    function handleScrollTransitions() {
+        const scrollThreshold = 100;
+        const isPastHero = window.scrollY > scrollThreshold;
+
+        if (isPastHero) {
+            // FULL NAVIGATION MODE
+            if (floatingNav) {
+                floatingNav.classList.add('visible');
+                floatingNav.classList.remove('hero-mode');
+                if (startNavBtn) {
+                    startNavBtn.innerHTML = `<span class="btn-text">BẮT ĐẦU</span>`;
+                    startNavBtn.dataset.action = 'assessment';
+                    startNavBtn.style.paddingLeft = '1.5rem';
+                    startNavBtn.style.paddingRight = '1.5rem';
+                    startNavBtn.style.gap = '0';
+                }
+            }
+        } else {
+            // HERO SCROLL MODE (SAME FRAME)
+            if (floatingNav && typewriterFinished) {
+                floatingNav.classList.add('visible');
+                floatingNav.classList.add('hero-mode');
+                if (startNavBtn) {
+                    startNavBtn.innerHTML = `
+                        <span class="btn-text" style="font-size: 0.9rem">CUỘN ĐỂ XEM THÊM</span>
+                        <div class="icon-small">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <polyline points="19 12 12 19 5 12"></polyline>
+                            </svg>
+                        </div>
+                    `;
+                    startNavBtn.dataset.action = 'scroll';
+                    startNavBtn.style.paddingLeft = '2.5rem';
+                    startNavBtn.style.paddingRight = '0.5rem';
+                    startNavBtn.style.gap = '1.2rem';
+                }
+            } else if (floatingNav) {
+                floatingNav.classList.remove('visible');
+            }
+        }
+    }
+
+    window.addEventListener('scroll', handleScrollTransitions);
+
+    // --- Typewriter Execution ---
     if (quoteElement) {
         const textToType = quoteElement.getAttribute('data-text');
         quoteElement.innerHTML = '';
-        
-        textToType.split(' ').forEach((word, index, array) => {
+
+        // Prepare characters by word to prevent broken lines
+        const words = textToType.split(' ');
+        words.forEach((word, wIdx) => {
             const wordSpan = document.createElement('span');
             wordSpan.className = 'word';
+            wordSpan.style.whiteSpace = 'nowrap';
+            wordSpan.style.display = 'inline-block';
+
             word.split('').forEach(char => {
                 const charSpan = document.createElement('span');
                 charSpan.className = 'char';
                 charSpan.textContent = char;
                 wordSpan.appendChild(charSpan);
             });
+
             quoteElement.appendChild(wordSpan);
-            if (index < array.length - 1) {
+
+            // Add space after word (except last word)
+            if (wIdx < words.length - 1) {
                 const space = document.createElement('span');
                 space.className = 'char';
-                space.textContent = '\u00A0';
+                space.textContent = '\u00A0'; // Non-breaking space
                 quoteElement.appendChild(space);
             }
         });
 
         const characters = quoteElement.querySelectorAll('.char');
         let currentIndex = 0;
-        const typingSpeed = 30; 
+        const typingSpeed = 40;
 
         function drawText() {
             if (currentIndex < characters.length) {
                 characters[currentIndex].classList.add('visible');
                 currentIndex++;
-                setTimeout(drawText, charTypeDelay(characters[currentIndex-1].textContent));
+                setTimeout(drawText, charTypeDelay(characters[currentIndex - 1].textContent));
             } else {
-                // FINISHED DRAWING
-                quoteIconBottom.classList.add('visible');
+                // Done Typing
+                if (quoteIconBottom) quoteIconBottom.classList.add('visible');
+
                 setTimeout(() => {
                     // Show Author
-                    authorElement.style.opacity = '1';
-                    authorElement.style.transform = 'translateY(0)';
-                    
-                    // Show Button
-                    buttonWrapper.style.transition = 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)';
-                    buttonWrapper.style.opacity = '1';
-                    buttonWrapper.style.transform = 'translateY(0)';
+                    if (authorElement) {
+                        authorElement.style.opacity = '1';
+                        authorElement.style.transition = 'opacity 1s ease';
+                    }
 
-                    // UNLOCK SCROLL & SHOW FEATURES
+                    // Set flag and call handler
+                    typewriterFinished = true;
+                    handleScrollTransitions();
+
+                    // Unlock Scroll
                     document.body.style.overflowY = 'auto';
-                    if (featuresSection) {
-                        featuresSection.classList.add('visible');
-                    }
-                    if (stepsSection) {
-                        stepsSection.style.opacity = '1';
-                        stepsSection.style.transform = 'translateY(0)';
-                    }
-                }, 600);
+                    if (featuresSection) featuresSection.classList.add('visible');
+                }, 500);
             }
         }
 
         function charTypeDelay(char) {
-            if (char === '\u00A0') return 80;
-            if (char === ',' || char === '.') return 200;
-            return typingSpeed + (Math.random() * 20);
+            if (char === '\u00A0') return 50;
+            if (char === ',' || char === '.') return 150;
+            return typingSpeed;
         }
 
-        // Start Sequence
+        // Start animation sequence
         setTimeout(() => {
-            quoteIconTop.classList.add('visible');
+            if (quoteIconTop) quoteIconTop.classList.add('visible');
             setTimeout(drawText, 800);
-        }, 400);
+        }, 500);
     }
 
-    // Mouse Tracking Effect
-    document.addEventListener('mousemove', (e) => {
-        const x = (e.clientX / window.innerWidth) * 100;
-        const y = (e.clientY / window.innerHeight) * 100;
-        document.body.style.setProperty('--mouse-x', `${x}%`);
-        document.body.style.setProperty('--mouse-y', `${y}%`);
-        
-        const quoteWrapper = document.querySelector('.quote-wrapper');
-        if (quoteWrapper) {
-            const shiftX = (e.clientX / window.innerWidth - 0.5) * 10;
-            const shiftY = (e.clientY / window.innerHeight - 0.5) * 10;
-            quoteWrapper.style.transform = `translate(${shiftX}px, ${shiftY}px)`;
-        }
-    });
-
-    // Step Cards Animation on Scroll
+    // --- Step Cards Intersection Observer ---
     const cardObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -107,16 +149,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     stepCards.forEach((card, index) => {
         card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
-        card.style.transition = `all 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.2}s`;
+        card.style.transform = 'translateY(50px)';
+        card.style.transition = `all 0.6s cubic-bezier(0.23, 1, 0.32, 1) ${index * 0.15}s`;
         cardObserver.observe(card);
     });
 
-    // --- ASSESSMENT LOGIC ---
+    // --- Assessment Logic ---
     const assessmentOverlay = document.getElementById('assessment-overlay');
     const resultsOverlay = document.getElementById('results-overlay');
-    const startBtn = document.getElementById('start-assessment');
-    const closeBtn = document.getElementById('close-assessment');
+    const footerStartBtn = document.getElementById('footer-cta-btn');
+    const closeAssessment = document.getElementById('close-assessment');
+    const closeResults = document.getElementById('close-results');
     const progressFill = document.getElementById('progress-fill');
     const questionContainer = document.getElementById('question-container');
     const prevBtn = document.getElementById('prev-btn');
@@ -124,183 +167,284 @@ document.addEventListener('DOMContentLoaded', () => {
     const restartBtn = document.getElementById('restart-assessment');
 
     const questions = [
-        // RIASEC
-        { model: 'RIASEC', type: 'Realistic', text: 'Tôi thích làm việc với máy móc, công cụ hoặc các hoạt động ngoài trời.' },
-        { model: 'RIASEC', type: 'Investigative', text: 'Tôi thích quan sát, học hỏi, điều tra và giải quyết các vấn đề phức tạp.' },
-        { model: 'RIASEC', type: 'Artistic', text: 'Tôi thích các hoạt động sáng tạo, nghệ thuật, âm nhạc và viết lách.' },
-        { model: 'RIASEC', type: 'Social', text: 'Tôi thích giúp đỡ, giảng dạy, tư vấn hoặc chăm sóc người khác.' },
-        { model: 'RIASEC', type: 'Enterprising', text: 'Tôi thích thuyết phục, dẫn dắt người khác và quản lý công việc kinh doanh.' },
-        { model: 'RIASEC', type: 'Conventional', text: 'Tôi thích làm việc với dữ liệu, con số, sắp xếp thông tin ngăn nắp.' },
-        
-        // BIG FIVE
-        { model: 'BigFive', type: 'Openness', text: 'Tôi luôn tò mò về thế giới và thích thử những trải nghiệm mới lạ.' },
-        { model: 'BigFive', type: 'Conscientiousness', text: 'Tôi là người làm việc có kế hoạch, kỷ luật và luôn hoàn thành mục tiêu.' },
-        { model: 'BigFive', type: 'Extraversion', text: 'Tôi cảm thấy tràn đầy năng lượng khi được giao tiếp và ở bên cạnh mọi người.' },
-        { model: 'BigFive', type: 'Agreeableness', text: 'Tôi luôn cố gắng thấu hiểu và tin tưởng vào sự tử tế của người khác.' },
-        { model: 'BigFive', type: 'Neuroticism', text: 'Tôi thường cảm thấy lo lắng hoặc dễ bị ảnh hưởng bởi áp lực trong cuộc sống.' },
-
-        // SCHWARTZ
-        { model: 'Schwartz', type: 'Self-Direction', text: 'Tự do tư duy và hành động là điều cực kỳ quan trọng đối với tôi.' },
-        { model: 'Schwartz', type: 'Benevolence', text: 'Tôi luôn ưu tiên lợi ích của những người thân thiết và cộng đồng xung quanh.' },
-        { model: 'Schwartz', type: 'Achievement', text: 'Việc đạt được thành công và thể hiện năng lực cá nhân là mục tiêu lớn của tôi.' },
-        { model: 'Schwartz', type: 'Universalism', text: 'Sự công bằng xã hội và bảo vệ môi trường là những giá trị tôi trân trọng.' }
+        { 
+            id: 'role',
+            model: 'CÁ NHÂN', 
+            type: 'choice', 
+            text: 'Bạn hiện đang là:', 
+            options: ['Học sinh', 'Sinh viên', 'Người đi làm'] 
+        },
+        // Conditional: Student
+        { 
+            id: 'subjects',
+            model: 'HỌC TẬP', 
+            type: 'text', 
+            text: 'Các môn học bạn thấy mình học tốt là gì?',
+            condition: (ans) => ans.role === 'Học sinh'
+        },
+        // Conditional: Student/Student
+        { 
+            id: 'major',
+            model: 'CHUYÊN NGÀNH', 
+            type: 'text', 
+            text: 'Bạn đang học ngành gì?',
+            condition: (ans) => ans.role === 'Sinh viên'
+        },
+        // Conditional: Professional
+        { 
+            id: 'position',
+            model: 'CÔNG VIỆC', 
+            type: 'text', 
+            text: 'Bạn đã/ đang ở vị trí công việc nào?',
+            condition: (ans) => ans.role === 'Người đi làm'
+        },
+        { 
+            id: 'education',
+            model: 'HỌC VẤN', 
+            type: 'choice', 
+            text: 'Trình độ học vấn cao nhất của bạn là:',
+            options: ['Tiểu học', 'THCS', 'THPT', 'Trung cấp', 'Cao đẳng', 'Đại học', 'Thạc sĩ', 'Tiến sĩ'],
+            condition: (ans) => ans.role === 'Người đi làm'
+        },
+        // General Questions
+        { 
+            id: 'skills',
+            model: 'KỸ NĂNG', 
+            type: 'text', 
+            text: 'Bạn có những kĩ năng nổi bật nào?'
+        },
+        { 
+            id: 'experience',
+            model: 'KINH NGHIỆM', 
+            type: 'text', 
+            text: 'Mô tả ngắn gọn về kinh nghiệm của bạn:',
+            condition: (ans) => ans.role !== 'Học sinh'
+        },
+        { 
+            id: 'tasks',
+            model: 'NHIỆM VỤ', 
+            type: 'text', 
+            text: 'Các nhiệm vụ công việc chính bạn đã từng thực hiện?',
+            condition: (ans) => ans.role !== 'Học sinh'
+        },
+        { 
+            id: 'interests',
+            model: 'QUAN TÂM', 
+            type: 'text', 
+            text: 'Bạn có mối quan tâm đặc biệt với các lĩnh vực nào?'
+        }
     ];
 
     let currentQuestionIndex = 0;
     let userAnswers = {};
 
-    function initAssessment() {
+    function getVisibleQuestions() {
+        return questions.filter(q => !q.condition || q.condition(userAnswers));
+    }
+
+    const openAssessment = () => {
+        assessmentOverlay.classList.add('active');
         currentQuestionIndex = 0;
         userAnswers = {};
         showQuestion();
+    };
+
+    if (startNavBtn) {
+        startNavBtn.addEventListener('click', () => {
+            if (startNavBtn.dataset.action === 'scroll') {
+                if (featuresSection) featuresSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                openAssessment();
+            }
+        });
     }
 
+    if (footerStartBtn) footerStartBtn.addEventListener('click', openAssessment);
+
+    if (closeAssessment) closeAssessment.addEventListener('click', () => assessmentOverlay.classList.remove('active'));
+    if (closeResults) closeResults.addEventListener('click', () => resultsOverlay.classList.remove('active'));
+
     function showQuestion() {
-        if (!questions[currentQuestionIndex]) return;
-        const q = questions[currentQuestionIndex];
-        const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+        const visibleQuestions = getVisibleQuestions();
+        const q = visibleQuestions[currentQuestionIndex];
+        const progress = ((currentQuestionIndex + 1) / visibleQuestions.length) * 100;
         if (progressFill) progressFill.style.width = `${progress}%`;
 
         if (questionContainer) {
-            questionContainer.innerHTML = `
-                <div class="question-fade">
-                    <span class="model-tag">${q.model}</span>
+            let content = `
+                <div style="animation: slideIn 0.3s ease-out">
+                    <span class="category-badge">${q.model}</span>
                     <h2 class="question-text">${q.text}</h2>
-                    <div class="options-group">
-                        ${[1, 2, 3, 4, 5].map(val => `
-                            <div class="option-item ${userAnswers[currentQuestionIndex] === val ? 'selected' : ''}" data-value="${val}">
-                                <div class="option-circle">${val}</div>
-                                <span class="option-label">${getLabel(val)}</span>
+                    <div class="content-area">`;
+
+            if (q.type === 'choice') {
+                content += `
+                    <div class="options-container">
+                        ${q.options.map((opt, i) => `
+                            <div class="choice-item ${userAnswers[q.id] === opt ? 'selected' : ''}" data-value="${opt}">
+                                <span class="choice-label">${opt}</span>
                             </div>
                         `).join('')}
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                content += `
+                    <textarea class="neo-input" placeholder="Nhập câu trả lời của bạn tại đây..." id="ans-${q.id}">${userAnswers[q.id] || ''}</textarea>
+                `;
+            }
 
-            // Add event listeners to options
-            questionContainer.querySelectorAll('.option-item').forEach(item => {
+            content += `</div></div>`;
+            questionContainer.innerHTML = content;
+
+            // Choice Listeners
+            questionContainer.querySelectorAll('.choice-item').forEach(item => {
                 item.addEventListener('click', () => {
-                    const val = parseInt(item.getAttribute('data-value'));
-                    userAnswers[currentQuestionIndex] = val;
+                    const val = item.getAttribute('data-value');
+                    userAnswers[q.id] = val;
                     
-                    // Visual feedback
-                    questionContainer.querySelectorAll('.option-item').forEach(i => i.classList.remove('selected'));
+                    // Highlight selected
+                    questionContainer.querySelectorAll('.choice-item').forEach(i => i.classList.remove('selected'));
                     item.classList.add('selected');
 
-                    // Auto next after selection
+                    // Auto-advance for choice
                     setTimeout(() => {
-                        if (currentQuestionIndex < questions.length - 1) {
+                        if (currentQuestionIndex < visibleQuestions.length - 1) {
                             currentQuestionIndex++;
                             showQuestion();
                         }
-                    }, 300);
+                    }, 400);
                 });
             });
+
+            // Text Listeners
+            const textInput = questionContainer.querySelector('.neo-input');
+            if (textInput) {
+                textInput.addEventListener('input', (e) => {
+                    userAnswers[q.id] = e.target.value;
+                });
+            }
         }
 
-        if (prevBtn) prevBtn.disabled = currentQuestionIndex === 0;
-        if (nextBtn) nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Xem kết quả' : 'Tiếp theo';
+        prevBtn.disabled = currentQuestionIndex === 0;
+        nextBtn.textContent = currentQuestionIndex === visibleQuestions.length - 1 ? 'BẮT ĐẦU KHÁM PHÁ' : 'TIẾP THEO';
+
+        const navGroup = document.querySelector('.assessment-nav');
+        if (navGroup) {
+            navGroup.style.display = currentQuestionIndex === 0 ? 'none' : 'flex';
+        }
     }
 
     function getLabel(val) {
-        const labels = ['Rất không đồng ý', 'Không đồng ý', 'Trung lập', 'Đồng ý', 'Rất đồng ý'];
-        return labels[val - 1];
+        return ['Rất không đồng ý', 'Không đồng ý', 'Trung lập', 'Đồng ý', 'Rất đồng ý'][val - 1];
     }
 
-    if (startBtn) {
-        startBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (assessmentOverlay) assessmentOverlay.classList.add('active');
-            initAssessment();
-        });
-    }
+    if (prevBtn) prevBtn.addEventListener('click', () => {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            showQuestion();
+        }
+    });
 
-    if (ctaButton) {
-        ctaButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (assessmentOverlay) assessmentOverlay.classList.add('active');
-            initAssessment();
-        });
-    }
+    if (nextBtn) nextBtn.addEventListener('click', () => {
+        const visibleQuestions = getVisibleQuestions();
+        const currentQ = visibleQuestions[currentQuestionIndex];
+        
+        if (!userAnswers[currentQ.id]) {
+            alert('Vui lòng hoàn thành câu trả lời!');
+            return;
+        }
 
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            if (assessmentOverlay) assessmentOverlay.classList.remove('active');
-        });
-    }
-
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                showQuestion();
-            }
-        });
-    }
-
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            if (userAnswers[currentQuestionIndex] === undefined) {
-                alert('Vui lòng chọn một câu trả lời trước khi tiếp tục.');
-                return;
-            }
-
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                showQuestion();
-            } else {
-                showResults();
-            }
-        });
-    }
+        if (currentQuestionIndex < visibleQuestions.length - 1) {
+            currentQuestionIndex++;
+            showQuestion();
+        } else {
+            showResults();
+        }
+    });
 
     function showResults() {
-        if (assessmentOverlay) assessmentOverlay.classList.remove('active');
-        if (resultsOverlay) resultsOverlay.classList.add('active');
+        assessmentOverlay.classList.remove('active');
+        resultsOverlay.classList.add('active');
 
-        // Process scores
-        const scores = { RIASEC: {}, BigFive: {}, Schwartz: {} };
-        questions.forEach((q, index) => {
-            const score = userAnswers[index] || 3;
-            scores[q.model][q.type] = score;
-        });
-
-        renderChart('riasec-chart', scores.RIASEC);
-        renderChart('bigfive-chart', scores.BigFive);
-        renderChart('schwartz-chart', scores.Schwartz);
+        const chartContainer = document.getElementById('results-content');
+        if (chartContainer) {
+            chartContainer.innerHTML = `
+                <div class="results-summary">
+                    ${Object.entries(userAnswers).map(([id, val]) => {
+                        const q = questions.find(q => q.id === id);
+                        return `
+                            <div class="summary-item">
+                                <span class="summary-label">${q.text}</span>
+                                <p class="summary-value">${val}</p>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
     }
 
     function renderChart(containerId, data) {
         const container = document.getElementById(containerId);
         if (!container) return;
         container.innerHTML = '';
-        
-        const maxVal = 5;
-        Object.entries(data).forEach(([key, val]) => {
-            const percentage = (val / maxVal) * 100;
-            const barWrapper = document.createElement('div');
-            barWrapper.className = 'chart-bar-wrapper';
-            barWrapper.innerHTML = `
-                <div class="chart-bar" style="height: 0%">
-                    <span class="chart-bar-value">${val}</span>
-                </div>
-                <span class="chart-bar-label">${key}</span>
-            `;
-            container.appendChild(barWrapper);
 
-            // Animate after append
+        Object.entries(data).forEach(([key, val]) => {
+            const h = (val / 5) * 100;
+            const bar = document.createElement('div');
+            bar.style.flex = "1";
+            bar.style.display = "flex";
+            bar.style.flexDirection = "column";
+            bar.style.alignItems = "center";
+            bar.style.justifyContent = "flex-end";
+            bar.style.height = "100%";
+            bar.innerHTML = `
+                <div style="background: var(--primary-pink); border: 2px solid black; width: 100%; height: 0%; transition: height 1s cubic-bezier(0.23, 1, 0.32, 1); min-height: 10px;"></div>
+                <span style="font-size: 0.6rem; font-weight: 800; margin-top: 5px; transform: rotate(-45deg); white-space: nowrap;">${key}</span>
+            `;
+            container.appendChild(bar);
             setTimeout(() => {
-                const bar = barWrapper.querySelector('.chart-bar');
-                if (bar) bar.style.height = `${percentage}%`;
+                bar.firstElementChild.style.height = `${h}%`;
             }, 100);
         });
     }
 
-    if (restartBtn) {
-        restartBtn.addEventListener('click', () => {
-            if (resultsOverlay) resultsOverlay.classList.remove('active');
-            if (assessmentOverlay) assessmentOverlay.classList.add('active');
-            initAssessment();
+    // --- Background Scroll Transition (Ultra Smooth) ---
+    const bgLayers = {
+        'quote-section': document.getElementById('bg-hero-layer'),
+        'features': document.getElementById('bg-features-layer'),
+        'steps': document.getElementById('bg-steps-layer')
+    };
+
+    const bgObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id || entry.target.className.split(' ')[0];
+
+                // Set active layer to opacity 1, others to 0
+                Object.keys(bgLayers).forEach(key => {
+                    if (bgLayers[key]) {
+                        const isActive = (key === sectionId);
+                        bgLayers[key].style.opacity = isActive ? '1' : '0';
+
+                        // Handle Background Layer Opacity Only
+                        if (isActive) {
+                            bgLayers[key].style.opacity = '1';
+                        }
+                    }
+                });
+            }
         });
-    }
+    }, { threshold: 0.1 });
+
+    // Target the sections
+    const heroSection = document.querySelector('.quote-section');
+    if (heroSection) bgObserver.observe(heroSection);
+    if (featuresSection) bgObserver.observe(featuresSection);
+    if (stepsSection) bgObserver.observe(stepsSection);
+
+    if (restartBtn) restartBtn.addEventListener('click', () => {
+        resultsOverlay.classList.remove('active');
+        openAssessment();
+    });
 });
