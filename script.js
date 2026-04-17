@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 'education',
             model: 'HỌC VẤN', 
             type: 'choice', 
-            text: 'Trình độ học vấn cao nhất của bạn là:',
+            text: 'Trình độ học vấn cao nhất của bạn:',
             options: ['Tiểu học', 'THCS', 'THPT', 'Trung cấp', 'Cao đẳng', 'Đại học', 'Thạc sĩ', 'Tiến sĩ'],
             condition: (ans) => ans.role === 'Người đi làm'
         },

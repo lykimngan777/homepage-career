@@ -799,46 +799,81 @@ body {
 
 .option-item:hover .option-circle {
     background: var(--primary-mint);
-    transform: translateY(-2px);
-    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+    transform: translateY(-5px);
+    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
 }
 
 .option-label {
     margin-top: 1rem;
     font-weight: 800;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 .btn-close {
     position: absolute;
-    top: -20px;
-    right: -20px;
-    width: 45px;
-    height: 45px;
-    background: var(--primary-pink);
-    border: 3px solid var(--text-black);
+    top: 1.5rem;
+    right: 1.5rem;
+    background: var(--bg-white);
+    border: 2px solid var(--text-black);
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     font-size: 1.5rem;
     font-weight: 900;
     cursor: pointer;
-    z-index: 10;
-    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-    transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    transition: 0.2s;
+    z-index: 10;
 }
 
 .btn-close:hover {
+    background: var(--primary-pink);
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
 }
 
+/* --- Results UI --- */
+.results-card {
+    max-width: 1000px;
+}
+
 .results-grid {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
+}
+
+.chart-container {
+    background: var(--bg-white);
+    border: 3px solid var(--text-black);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.chart-title {
+    font-weight: 900;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.bar-chart-area {
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    padding-bottom: 40px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .main-logo { height: 80px; }
+    .quote-text { font-size: 2.5rem; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .features-title { font-size: 2.5rem; }
+    .floating-nav { width: 90%; gap: 1rem; padding: 0.5rem 1rem; }
 }
