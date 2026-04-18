@@ -798,82 +798,335 @@ body {
 }
 
 .option-item:hover .option-circle {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
     background: var(--primary-mint);
-    transform: translateY(-5px);
-    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.option-item.selected .option-circle {
+    background: var(--primary-pink);
+    color: white;
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
 }
 
 .option-label {
     margin-top: 1rem;
-    font-weight: 800;
     font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
     text-align: center;
+}
+
+/* --- Results --- */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.result-section {
+    background: var(--primary-yellow);
+    border: var(--border-width) solid var(--text-black);
+    padding: 1.5rem;
+    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.result-section h3 {
+    font-weight: 900;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.chart-bar {
+    background: var(--primary-pink);
+    border: 2px solid var(--text-black);
 }
 
 .btn-close {
     position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    background: var(--bg-white);
-    border: 2px solid var(--text-black);
-    width: 40px;
-    height: 40px;
+    top: -20px;
+    right: -20px;
+    width: 45px;
+    height: 45px;
+    background: var(--primary-pink);
+    border: 3px solid var(--text-black);
     border-radius: 50%;
     font-size: 1.5rem;
     font-weight: 900;
     cursor: pointer;
+    z-index: 10;
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-    transition: 0.2s;
-    z-index: 10;
 }
 
 .btn-close:hover {
-    background: var(--primary-pink);
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
-}
-
-/* --- Results UI --- */
-.results-card {
-    max-width: 1000px;
-}
-
-.results-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.chart-container {
     background: var(--bg-white);
-    border: 3px solid var(--text-black);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+    transform: scale(1.1);
 }
 
-.chart-title {
-    font-weight: 900;
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
+/* --- Responsive Design --- */
+
+/* Tablet & Smaller Desktops */
+@media (max-width: 1024px) {
+    .container {
+        padding: 1.5rem;
+    }
 }
 
-.bar-chart-area {
-    height: 200px;
-    display: flex;
-    align-items: flex-end;
-    gap: 15px;
-    padding-bottom: 40px;
+/* Tablets & Large Phones */
+@media (max-width: 900px) {
+    .main-logo {
+        height: 80px;
+    }
+
+    .main-header {
+        top: 1rem;
+        left: 1rem;
+    }
+
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .floating-nav {
+        bottom: 1.5rem;
+        width: 92%;
+        padding: 0.6rem 1rem;
+        gap: 1rem;
+    }
+
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quote-text {
+        font-size: 2.2rem;
+    }
+
+    .quote-wrapper {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .features-title {
+        font-size: 2.8rem;
+        margin-bottom: 3rem;
+    }
 }
 
-/* --- Responsive --- */
-@media (max-width: 768px) {
-    .main-logo { height: 80px; }
-    .quote-text { font-size: 2.5rem; }
-    .steps-grid { grid-template-columns: 1fr; }
-    .features-title { font-size: 2.5rem; }
-    .floating-nav { width: 90%; gap: 1rem; padding: 0.5rem 1rem; }
+/* Mobile Devices (Aggressive Scaling Down) */
+@media (max-width: 600px) {
+    :root {
+        --border-width: 2.5px; /* Thinner borders for mobile */
+    }
+
+    .main-logo {
+        height: 50px; /* Smaller logo */
+    }
+
+    .main-header {
+        top: 0.8rem;
+        left: 0.8rem;
+    }
+
+    /* Shrink Hero Section */
+    .quote-section {
+        padding: 2rem 1rem;
+    }
+
+    .quote-wrapper {
+        padding: 1.8rem 1.2rem;
+        box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1); /* Smaller shadow */
+        border-radius: 12px;
+    }
+
+    .quote-text {
+        font-size: 1.5rem; /* Compact font */
+        margin-bottom: 1.2rem;
+    }
+
+    .quote-icon-top,
+    .quote-icon-bottom {
+        font-size: 4rem;
+        -webkit-text-stroke: 1px var(--text-black);
+    }
+
+    .author {
+        font-size: 0.9rem;
+        padding: 0.2rem 0.6rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Shrink Features Section */
+    .features-section {
+        padding: 4rem 1rem;
+    }
+
+    .features-title {
+        font-size: 1.8rem;
+        margin-bottom: 2.5rem;
+        -webkit-text-stroke: 1px var(--text-black);
+    }
+
+    .feature-item {
+        padding: 1rem;
+        gap: 0.8rem;
+        box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    .feature-tick {
+        width: 28px;
+        height: 28px;
+        font-size: 1rem;
+        border-width: 2px;
+    }
+
+    .feature-content {
+        font-size: 0.95rem;
+    }
+
+    /* Shrink Steps Section */
+    .steps-section {
+        padding: 4rem 1rem;
+    }
+
+    .steps-title {
+        font-size: 1.6rem;
+        padding: 0.6rem 1.2rem;
+        box-shadow: 5px 5px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    .step-card {
+        padding: 1.5rem;
+        box-shadow: 5px 5px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    .step-number {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .step-heading {
+        font-size: 1.4rem;
+    }
+
+    .step-bottom {
+        font-size: 0.95rem;
+    }
+
+    /* Shrink Navigation */
+    .floating-nav {
+        bottom: 1rem;
+        width: auto; /* Let it fit content */
+        max-width: 95%; /* But not overflow */
+        padding: 0.4rem 1.2rem;
+        gap: 1.2rem; /* Adjusted gap for mobile */
+        justify-content: center; /* Center everything inside */
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1), 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    .nav-link {
+        font-size: 0.7rem;
+        letter-spacing: -0.02em;
+    }
+
+    .nav-btn-dynamic {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+        gap: 0.5rem;
+        box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    /* Shrink Overlays */
+    .assessment-card,
+    .results-card {
+        padding: 1rem; /* More compact padding */
+        box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+        gap: 0.8rem;
+    }
+
+    .assessment-main-title {
+        font-size: 0.8rem; /* Extremely compact */
+        margin-bottom: 0.2rem;
+    }
+
+    .category-badge {
+        font-size: 0.7rem;
+        padding: 0.1rem 0.6rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .question-text {
+        font-size: 1.15rem; /* Significantly smaller */
+        margin-bottom: 1.2rem;
+    }
+
+    .options-container {
+        gap: 0.6rem;
+        margin-top: 1rem;
+    }
+
+    .choice-item {
+        padding: 0.5rem 1rem; /* Smaller items */
+        font-size: 0.85rem;
+        box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    .choice-circle {
+        width: 22px;
+        height: 22px;
+        font-size: 0.75rem;
+    }
+
+    .options-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .option-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .option-label {
+        font-size: 0.7rem;
+        margin-top: 0.5rem;
+    }
+
+    .btn-premium {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.85rem;
+        box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    .assessment-nav {
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-close {
+        top: 5px;
+        right: 5px;
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+        box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    .progress-bar {
+        height: 8px;
+        margin-bottom: 0.8rem;
+    }
+}
+
+/* Super Small Devices */
+@media (max-width: 380px) {
+    .floating-nav a.nav-link:not(.nav-btn-dynamic) {
+        display: none;
+    }
 }
